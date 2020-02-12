@@ -122,3 +122,10 @@ body{
     background-color: #665533;
     margin-top: 10px;
 }
+
+.dateRange{
+  height: 34px;
+    line-height: 34px;
+    text-align: center;
+    margin-top: 7px;
+}
