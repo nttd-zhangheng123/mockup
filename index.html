@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Fast Retailing Supplier Portal</title>
+    <base href=".">
+
+    <meta name="viewport" content="width=device-width">
+    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $('.a-loader').hide();
+        $('input[name=userType]:radio').click((event) => {
+          sessionStorage.setItem('userType', event.target.value);
+        });
+        sessionStorage.setItem('userType', '2');
+      });
+      function gotoPage(pageName) {
+        document.location.href = `./features/${pageName}`;
+      }
+    </script>
+    <style>
+      .a-loader {
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.6);
+        top: 0;
+        left: 0;
+        z-index: 1000000;
+      }
+
+      body:not(.is-loaded) .a-loader,
+      body.is-api-loading .a-loader,
+      body.is-screen-loading .a-loader {
+        display: block;
+      }
+
+      /*loading page after logged in or force to hide*/
+      body.is-initialpage-load-start .a-loader,
+      body.is-loader-force-hide .a-loader {
+        display: none !important;
+      }
+
+      .a-loader svg {
+        animation: spin 1.5s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 32px;
+        height: 32px;
+        margin-top: -16px;
+        margin-left: -16px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .menuItem {
+        width: 32%;
+        background-color: #5b68d1;
+        text-align: center;
+        height: 100px;
+        line-height: 100px;
+        border-radius: 5px;
+        font-size: 50px;
+        margin-left: 10px;
+        float: left;
+      }
+
+      .menuItem:hover {
+        opacity: 0.8;
+        cursor: pointer;
+      }
+
+      .menuItem:active {
+        opacity: 1;
+        cursor: wait;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1 style="text-align: center">SPL Menu</h1>
+    <h3 style="text-align: center; color: red">select user type</h3>
+    <div style="padding: 10px 10px 30px 10px;     text-align: center;    font-size: xx-large">
+        <label><input style="margin-left: 10px;    height: 25px;" type="radio" name="userType" value="1" >FR</label>
+        <label><input style="margin-left: 10px;    height: 25px;" type="radio" name="userType" value="2" checked>MF</label>
+          <label><input style="margin-left: 10px;    height: 25px;" type="radio" name="userType" value="3">FWD</label>
+    </div>
+    <div style="width: 100%;">
+      <div class="menuItem" onclick="gotoPage('tradingDocumentList.html')">menu1</div>
+      <div class="menuItem">menu2</div>
+      <div class="menuItem">menu3</div>
+    </div>
+  </body>
+
+</html>
