@@ -25,6 +25,8 @@
     <script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.css">
     <!-- <script src="https://unpkg.com/bootstrap-table@1.15.3/dist/bootstrap-table.min.js"></script> -->
+    <link href="https://cdn.bootcss.com/datepicker/0.6.5/datepicker.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/datepicker/0.6.5/datepicker.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../common.css" />
     <script>
@@ -47,11 +49,23 @@
         $('.menuIcon').click(() => {
           document.location.href = `../index.html`;
         });
+        $('#table').on('check.bs.table', function (row, element) {
+          $('.footerBtn').attr('disabled', $('#table').bootstrapTable('getSelections').length !== 1);
+        });
+        $('#table').on('uncheck.bs.table', function (row, element) {
+          $('.footerBtn').attr('disabled', $('#table').bootstrapTable('getSelections').length !== 1);
+        });
+
       });
       function init() {
+        $('.datepicker').datepicker({ inline: true, format: 'yyyy/mm/dd' });
         $('.multiple-select').multipleSelect();
         $('.searchContent').hide();
         $('#closeIcon').hide();
+        $('.footerBtn').attr('disabled', true);
+        if (sessionStorage.getItem('userType') !== '1') { // 如果不是FR
+          $('#approveBtn').hide();
+        }
       }
       function hideSearchContent() {
         $('#closeIcon').hide();
@@ -63,10 +77,59 @@
         $('#showIcon').hide();
         $('#closeIcon').show();
       }
+      function cellStyle(value, row, index) {
+
+        if (index % 2 !== 0) {
+          return {
+            css: {
+              color: 'red'
+            }
+          }
+        }
+        return {
+          css: {
+            color: 'black'
+          }
+        }
+      }
       function initData() {
+        // <th data-checkbox="true"></th>
+        //       <th data-field="invoiceNo">Switch Invoice No.</th>
+        //       <th data-field="pattern">Transaction Pattern</th>
+        //       <th data-field="itemBrand">Item Brand</th>
+        //       <th data-field="bu">Business Unit</th>
+        //       <th data-field="vendor">Vendor</th>
+        //       <th data-field="mf">Management Factory</th>
+        //       <th data-field="fwd">FWD</th>
+        //       <th data-field="loading">Port of Loading</th>
+        //       <th data-field="discharging">Port of Discharging</th>
+        //       <th data-field="departureWh">Departure WH</th>
+        //       <th data-field="arrivalWh">Arrival WH</th>
+        //       <th data-field="country">Country of Sales</th>
+        //       <th data-field="exf">EXF (Actual)</th>
+        //       <th data-field="cycfs">CY/CFS (Actual)</th>
+        //       <th data-field="etd">ETD (Actual)</th>
+        //       <th data-field="powh">PO WH</th>
+        //       <th data-field="invoiceExport">InvoiceExport</th>
+        //       <th data-field="packingList">Import/Export Packing List</th>
+        //       <th data-field="switchInvoice">Import Invoice/Switch Invoice</th>
+        //       <th data-field="customDuty">Import Custom Duty</th>
+        //       <th data-field="salesContract">SalesContract/SPEC</th>
+        //       <th data-field="hbl">HBL</th>
+        //       <th data-field="co">CO</th>
+        //       <th data-field="weightList">Weight List (RUS)</th>
+        //       <th data-field="ksoLs">KSO LS (ID)</th>
+        //       <th data-field="vet">VET (AU)</th>
+        //       <th data-field="mbl">MBL</th>
+        //       <th data-field="declaration">Import Declaration</th>
+        //       <th data-field="momo">Freight Memo (CN)</th>
         const rows = [];
         for (var i = 0; i < 20; i++) {
-          rows.push({ id: i, name: 'name' + i, price: 'price' + i });
+          rows.push({
+            invoiceNo: 'UQCN-195208', pattern: 'Domestic Purchase', itemBrand: '010:UNIQLO', bu: 'UQJP', vendor: '0004 : Trading company(FCA)', mf: '8121 : (FCA)MARUBENI CORPORATION',
+            fwd: '0001:FWD', loading: 'Ho Chi Minh', discharging: 'Ho Chi Minh', departureWh: '9044 : MCLOGI Ho Chi Minh Bonded(Japan)', arrivalWh: '9044 : MCLOGI Ho Chi Minh Bonded(Japan)', country: 'VN', exf: '2020/01/13', cycfs: '2020/01/14', etd: '2020/01/23', powh: '2020/01/24',
+            invoiceExport: 'UQCN-195208<br>一次申請待<br>2020/02/02'
+          });
         }
         return rows;
       }
@@ -92,7 +155,7 @@
           <div class="searchContent">
             <div class="form-group">
               <label for="inputShipCode" class="col-sm-2 control-label">Switch Invoice No.</label>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <input type="text" class="form-control" id="inputShipCode" placeholder="Please Input" />
               </div>
             </div>
@@ -110,7 +173,6 @@
             <div class="form-group">
               <label for="itemBrand" class="col-sm-2 control-label">Item Brand</label>
               <div id="itemBrand" class="col-sm-3">
-                <!-- 样式1 -->
                 <select class="form-control">
                   <option>UQ</option>
                   <option>GU</option>
@@ -168,6 +230,16 @@
               </div>
             </div>
             <div class="form-group">
+              <label for="countryOfSales" class="col-sm-2 control-label">Country of Sales</label>
+              <div id="countryOfSales" class="col-sm-3 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">China</option>
+                  <option value="2">Japan</option>
+                  <option value="3">USA</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
               <label for="portOfLoading" class="col-sm-2 control-label">Port of Loading</label>
               <div id="portOfLoading" class="col-sm-3 multi-select">
                 <select multiple="multiple" class="multiple-select">
@@ -185,13 +257,300 @@
                 </select>
               </div>
             </div>
+            <div class="form-group">
+              <label for="departureWh" class="col-sm-2 control-label">Departure WH</label>
+              <div id="departureWh" class="col-sm-3 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">WH 1</option>
+                  <option value="2">WH 2</option>
+                  <option value="3">WH 3</option>
+                </select>
+              </div>
+              <label for="arrivalWh" class="col-sm-2 control-label">Arrival WH</label>
+              <div id="arrivalWh" class="col-sm-3 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">WH 1</option>
+                  <option value="2">WH 2</option>
+                  <option value="3">WH 3</option>
+                </select>
+              </div>
+            </div>
+            <!-- delivery date -->
+            <div class="form-group row">
+              <label for="departureWh" class="col-sm-2 control-label">EXF (Actual)</label>
+              <div id="departureWh" class="col-sm-2 multi-select">
+                <input class="datepicker form-control" data-date-format="mm/dd/yyyy">
+              </div>
+              <div class="col-sm-1 dateRange">
+                <span>~</span>
+              </div>
+              <div class="col-sm-2 multi-select">
+                <input class="datepicker form-control" data-date-format="mm/dd/yyyy">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="departureWh" class="col-sm-2 control-label">CY/CFS (Actual)</label>
+              <div id="departureWh" class="col-sm-2 multi-select">
+                <input class="datepicker form-control" data-date-format="mm/dd/yyyy">
+              </div>
+              <div class="col-sm-1 dateRange">
+                <span>~</span>
+              </div>
+              <div class="col-sm-2 multi-select">
+                <input class="datepicker form-control" data-date-format="mm/dd/yyyy">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="departureWh" class="col-sm-2 control-label">ETD (Actual)</label>
+              <div id="departureWh" class="col-sm-2 multi-select">
+                <input class="datepicker form-control" data-date-format="mm/dd/yyyy">
+              </div>
+              <div class="col-sm-1 dateRange">
+                <span>~</span>
+              </div>
+              <div class="col-sm-2 multi-select">
+                <input class="datepicker form-control" data-date-format="mm/dd/yyyy">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="departureWh" class="col-sm-2 control-label">PO WH</label>
+              <div id="departureWh" class="col-sm-2 multi-select">
+                <input class="datepicker form-control" data-date-format="mm/dd/yyyy">
+              </div>
+              <div class="col-sm-1 dateRange">
+                <span>~</span>
+              </div>
+              <div class="col-sm-2 multi-select">
+                <input class="datepicker form-control" data-date-format="mm/dd/yyyy">
+              </div>
+            </div>
             <div class="form-group row">
               <label for="InvoiceExport" class="col-sm-2 control-label">InvoiceExport</label>
-              <div id="InvoiceExport" class="col-sm-6 multi-select">
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
                 <select multiple="multiple" class="multiple-select">
-                  <option value="1">pattern 1</option>
-                  <option value="2">pattern 2</option>
-                  <option value="3">pattern 3</option>
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">Import/Export Packing List</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">Import Invoice/Switch Invoice</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">Import Custom Duty</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">SalesContract/SPEC</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">HBL</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">CO</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">Weight List (RUS)</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">KSO LS (ID)</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">VET (AU)</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">MBL</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">Import Declaration</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <input id="delayedCheckbox" type="checkbox" class="delayedCheckbox">
+                <span class="delayedCheckboxLabel">Delayed</span>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="InvoiceExport" class="col-sm-2 control-label">Freight Memo (CN)</label>
+              <div id="InvoiceExport" class="col-sm-4 multi-select">
+                <select multiple="multiple" class="multiple-select">
+                  <option value="1">生成済</option>
+                  <option value="2">草稿件申請待</option>
+                  <option value="3">草稿件承認待</option>
+                  <option value="4">一次申請待</option>
+                  <option value="5">一次承認待</option>
+                  <option value="6">最終申請待</option>
+                  <option value="7">最終承認待</option>
                 </select>
               </div>
               <div style="float: left">
@@ -214,13 +573,39 @@
 
       </div>
       <div class="datalistArea">
-        <table id="table" data-toggle="table" data-pagination="true"  data-page-size="5">
+        <table id="table" data-toggle="table" data-pagination="true" data-page-size="5">
           <thead>
             <tr>
-              <th data-sortable="true" data-checkbox="true">Item ID</th>
-              <th data-field="id">ID</th>
-              <th data-field="name">Item Name</th>
-              <th data-field="price">Item Price</th>
+              <th data-checkbox="true"></th>
+              <th data-field="invoiceNo">Switch Invoice No.</th>
+              <th data-field="pattern" data-width="500">Transaction Pattern</th>
+              <th data-field="itemBrand">Item Brand</th>
+              <th data-field="bu">Business Unit</th>
+              <th data-field="vendor" data-width="500">Vendor</th>
+              <th data-field="mf" data-width="500">Management Factory</th>
+              <th data-field="fwd">FWD</th>
+              <th data-field="loading" data-width="500">Port of Loading</th>
+              <th data-field="discharging" data-width="500">Port of Discharging</th>
+              <th data-field="departureWh" data-width="500">Departure WH</th>
+              <th data-field="arrivalWh" data-width="500">Arrival WH</th>
+              <th data-field="country">Country of Sales</th>
+              <th data-field="exf">EXF (Actual)</th>
+              <th data-field="cycfs">CY/CFS (Actual)</th>
+              <th data-field="etd">ETD (Actual)</th>
+              <th data-field="powh">PO WH</th>
+              <th data-field="invoiceExport" data-cell-style="cellStyle">InvoiceExport</th>
+              <th data-field="packingList">Import/Export Packing List</th>
+              <th data-field="switchInvoice">Import Invoice/Switch Invoice</th>
+              <th data-field="customDuty">Import Custom Duty</th>
+              <th data-field="salesContract">SalesContract/SPEC</th>
+              <th data-field="hbl">HBL</th>
+              <th data-field="co">CO</th>
+              <th data-field="weightList">Weight List (RUS)</th>
+              <th data-field="ksoLs">KSO LS (ID)</th>
+              <th data-field="vet">VET (AU)</th>
+              <th data-field="mbl">MBL</th>
+              <th data-field="declaration">Import Declaration</th>
+              <th data-field="momo">Freight Memo (CN)</th>
             </tr>
           </thead>
         </table>
@@ -228,10 +613,11 @@
     </div>
     </div>
     <div class="footer">
-      <button type="button" class="btn btn-info footerBtn">Documents Approve</button>
+      <button id="approveBtn" type="button" class="btn btn-info footerBtn">Documents Approve</button>
       <button type="button" class="btn btn-info footerBtn">Documents Upload</button>
       <button type="button" class="btn btn-info footerBtn">Documents Download</button>
-      <a class="footerLink" href="javascript:void(0)">Documents Schedule Download</a>
+      <button type="button" class="btn btn-link">Documents Schedule Download</button>
+      <!-- <a class="footerLink" href="javascript:void(0)">Documents Schedule Download</a> -->
 
 
 
